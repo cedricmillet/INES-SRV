@@ -29,16 +29,15 @@ async function bootstrap() {
   );
   
   /** SWAGGER */
-  const swaggerCfg = new DocumentBuilder().setTitle('Klimbers-srv-openAPI')
-    .setDescription(`Description de l'API REST klimbers-srv`)
+  const swaggerCfg = new DocumentBuilder().setTitle('Open API')
+    .setDescription(`Description de l'API REST`)
     .setVersion('1.0')
-    .setLicense('Cédric MILLET - contact@cedricmillet.fr', 'mailto:contact@cedricmillet.fr')
     .addBearerAuth().build();
   const document = SwaggerModule.createDocument(app, swaggerCfg);
   SwaggerModule.setup(config.API_DOC_ENDPOINT, app, document);
 
   /** START NEST APP */
   await app.listen(config.APP_LISTENING_PORT);
-  console.log(`klimbers-srv started at http://localhost:${config.APP_LISTENING_PORT}`);
+  console.log(`web server started at http://localhost:${config.APP_LISTENING_PORT}`);
 }
 bootstrap();

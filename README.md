@@ -2,13 +2,16 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Petit backend destiné à stocker des livres JSON.
 
 ## Installation
 
 ```bash
 $ npm install
 ```
+
+## Documentation
+Available at `http://localdomain:{port}/doc`.
 
 ## Running the app
 
