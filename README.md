@@ -4,6 +4,10 @@
 
 Petit backend destiné à stocker des livres JSON.
 
+## CI / CD
+
+TODO : deploiement sous microsoft azure
+
 ## Installation
 
 ```bash
