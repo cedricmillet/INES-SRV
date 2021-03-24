@@ -1,0 +1,84 @@
+
+stages:
+#  - build
+  - docker-build
+  - deploy-staging-server
+  - deploy-prod-server
+
+variables:
+  DEPLOY_SERVER_USERNAME: "debian"
+  DEPLOY_SERVER_IP: "92.222.22.170"
+  DOCKER_IMAGE_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+  DOCKER_EXPOSED_APP_PORT: 3000
+  DOCKER_EXPOSED_PORT_STAGING: 5012
+  DOCKER_EXPOSED_PORT_PRODUCTION: 1212
+  DOCKER_STOPPING_ENV_SCRIPT: "/home/debian/deploy-scripts/stopContainerByPort.sh"
+
+# BUILD
+#build:
+#  stage: build
+#  image: node:latest
+#  before_script:
+#    - npm ci
+#  script:
+#    - npm run build
+#  artifacts: 
+#    expire_in: 1 day
+#    paths:
+#     - dist/
+#  tags:
+#    - docker
+
+# DEPLOY - https://javascript-conference.com/blog/build-test-deployment-angular-gitlab-ci/
+build-docker-img:
+  stage: docker-build
+  image: docker:19.03.12
+  services:
+    - docker:19.03.12-dind
+  before_script: []    
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $DOCKER_IMAGE_TAG .
+    - docker push $DOCKER_IMAGE_TAG
+  tags:
+    - docker
+
+# STAGING
+deploy-staging:
+  when: manual
+  stage: deploy-staging-server
+  image: alpine
+  before_script:
+    - apk add openssh-client
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  script:
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER_USERNAME@$DEPLOY_SERVER_IP "bash /home/debian/deploy-scripts/stopContainerByPort.sh $DOCKER_EXPOSED_PORT_STAGING $DOCKER_IMAGE_TAG"
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER_USERNAME@$DEPLOY_SERVER_IP "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER_USERNAME@$DEPLOY_SERVER_IP "docker pull $DOCKER_IMAGE_TAG"
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER_USERNAME@$DEPLOY_SERVER_IP "docker run -p $DOCKER_EXPOSED_PORT_STAGING:$DOCKER_EXPOSED_APP_PORT -d $DOCKER_IMAGE_TAG"
+  only:
+    - develop
+
+# PRODUCTION
+deploy-prod:
+  when: manual
+  stage: deploy-prod-server
+  image: alpine
+  before_script:
+    - apk add openssh-client
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  script:
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER_USERNAME@$DEPLOY_SERVER_IP 'bash /home/debian/deploy-scripts/stopContainerByPort.sh $DOCKER_EXPOSED_PORT_PRODUCTION'
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER_USERNAME@$DEPLOY_SERVER_IP "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER_USERNAME@$DEPLOY_SERVER_IP "docker pull $DOCKER_IMAGE_TAG"
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER_USERNAME@$DEPLOY_SERVER_IP "docker run -p $DOCKER_EXPOSED_PORT_PRODUCTION:$DOCKER_EXPOSED_APP_PORT -d $DOCKER_IMAGE_TAG"
+    - echo "Deploiement de klimbers-ui sur le port  $DOCKER_EXPOSED_PORT_PRODUCTION ($DOCKER_IMAGE_TAG)"
+  only:
+    - master
+

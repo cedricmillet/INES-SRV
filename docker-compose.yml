@@ -1,0 +1,14 @@
+version: "2"
+volumes: 
+    persistent:
+services:
+    db:
+        image: mysql
+        ports: 
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_HOST=%
+            - MYSQL_DATABASE=klimbers
+            - MYSQL_ROOT_PASSWORD=1234
+        volumes:
+            - persistent:/var/lib/mysql
