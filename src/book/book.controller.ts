@@ -2,10 +2,10 @@ import { Controller, Get, UseGuards, Request, Post, Body, BadRequestException } 
 /** Open API */
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 /** Auth guards */
-import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+import { JwtAuthGuard } from '../../old/auth/jwt/jwt-auth.guard';
 /** Entities */
 import { Book } from './book.entity';
-import { User } from 'src/user/user.entity';
+import { User } from '../user/user.entity';
 /** DTOs */
 import { CreateBookDTO } from './dtos/create.dto';
 /** Services */

@@ -5,7 +5,7 @@ import { AppService } from './app/app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import ormconfig from './ormconfig';
 /** FEATURE MODULES */
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from '../old/auth/auth.module';
 import { UserModule } from './user/user.module';
 import { BookModule } from './book/book.module';
 

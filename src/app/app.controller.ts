@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { config } from 'src/config';
+import { config } from '../config';
 import { AppService } from './app.service';
 import * as path from 'path';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 /** CONFIG */
-import { config } from 'src/config';
+import { config } from '../config';
 /** SERVICE */
 import { UserService } from '../user/user.service';
 /** CRYPT */
